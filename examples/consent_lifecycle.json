@@ -1,0 +1,18 @@
+[
+  {"id":"C01-before-grant","event":{"kind":"request","actor":"agent-demo","at":0,"action":"read","resource":"notes-demo","expected_version":0},"expected":["DENY","no_active_mandate"]},
+  {"id":"C02-grant","event":{"kind":"grant","actor":"subject-demo","at":1,"permissions":[["read","notes-demo"],["summarize","notes-demo"]],"expires_at":100},"expected":["ALLOW","grant_recorded"]},
+  {"id":"C03-permitted-read","event":{"kind":"request","actor":"agent-demo","at":2,"action":"read","resource":"notes-demo","expected_version":1},"expected":["ALLOW","within_scope"]},
+  {"id":"C04-permitted-summary","event":{"kind":"request","actor":"agent-demo","at":3,"action":"summarize","resource":"notes-demo","expected_version":1},"expected":["ALLOW","within_scope"]},
+  {"id":"C05-no-export","event":{"kind":"request","actor":"agent-demo","at":4,"action":"export","resource":"notes-demo","expected_version":1},"expected":["DENY","outside_scope"]},
+  {"id":"C06-no-other-resource","event":{"kind":"request","actor":"agent-demo","at":5,"action":"read","resource":"private-other","expected_version":1},"expected":["DENY","outside_scope"]},
+  {"id":"C07-no-other-agent","event":{"kind":"request","actor":"intruder-demo","at":6,"action":"read","resource":"notes-demo","expected_version":1},"expected":["DENY","unauthorized_actor"]},
+  {"id":"C08-no-self-expansion","event":{"kind":"narrow","actor":"agent-demo","at":7,"permissions":[["export","notes-demo"]],"expires_at":100,"expected_version":1},"expected":["DENY","unauthorized_actor"]},
+  {"id":"C09-narrow","event":{"kind":"narrow","actor":"subject-demo","at":8,"permissions":[["read","notes-demo"]],"expires_at":100,"expected_version":1},"expected":["ALLOW","scope_narrowed"]},
+  {"id":"C10-stale-cache","event":{"kind":"request","actor":"agent-demo","at":9,"action":"summarize","resource":"notes-demo","expected_version":1},"expected":["DENY","stale_version"]},
+  {"id":"C11-narrowed-action","event":{"kind":"request","actor":"agent-demo","at":10,"action":"summarize","resource":"notes-demo","expected_version":2},"expected":["DENY","outside_scope"]},
+  {"id":"C12-remaining-action","event":{"kind":"request","actor":"agent-demo","at":11,"action":"read","resource":"notes-demo","expected_version":2},"expected":["ALLOW","within_scope"]},
+  {"id":"C13-revoke","event":{"kind":"revoke","actor":"subject-demo","at":12,"expected_version":2},"expected":["ALLOW","revocation_recorded"]},
+  {"id":"C14-stale-after-revoke","event":{"kind":"request","actor":"agent-demo","at":13,"action":"read","resource":"notes-demo","expected_version":2},"expected":["DENY","stale_version"]},
+  {"id":"C15-revoked","event":{"kind":"request","actor":"agent-demo","at":14,"action":"read","resource":"notes-demo","expected_version":3},"expected":["DENY","no_active_mandate"]},
+  {"id":"C16-no-resurrection","event":{"kind":"grant","actor":"subject-demo","at":15,"permissions":[["read","notes-demo"]],"expires_at":200},"expected":["DENY","mandate_already_used"]}
+]

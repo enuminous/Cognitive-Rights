@@ -1,0 +1,43 @@
+name: Verify cognitive rights reference model
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Toolchain
+        run: python3 --version
+      - name: Policy and adversarial tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Source preservation and documentation
+        run: python3 scripts/check_sources.py
+      - name: Produce synthetic evidence
+        run: python3 -m cognitive_rights demo
+      - name: Verify anchored evidence
+        run: python3 -m cognitive_rights verify artifacts/evidence.json --trusted-digest "$(cat artifacts/trusted-digest.txt)"
+      - name: Require UNRESOLVED without an anchor
+        shell: bash
+        run: |
+          set +e
+          python3 -m cognitive_rights verify artifacts/evidence.json
+          result=$?
+          set -e
+          test "$result" -eq 2
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: cr-001-evidence
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 30
